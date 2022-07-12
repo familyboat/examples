@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>cubic-equation-solving</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<div class="CJK">
+<p>昨日解答：</p>
+<p>一元三次方程的求解，是完全代数化的、形式化的；</p>
+<p>下面我就来对一元三次方程的求解做形式化的推演；</p>
+<p>从最通用的一元三次方程出（x代表未知数）：</p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20ax%5E%7B3%7D%2Bbx%5E%7B2%7D%2Bcx%2Bd%3D0%28a%5Cneq0%29"
+alt="ax^{3}+bx^{2}+cx+d=0(a\neq0)" title="ax^{3}+bx^{2}+cx+d=0(a\neq0)"
+class="math display" /></p>
+<p>(1)：方程两边同时除以a，将最高次项（三次项）的系数化为1:</p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20x%5E%7B3%7D%2Bex%5E%7B2%7D%2Bfx%2Bg%3D0"
+alt="x^{3}+ex^{2}+fx+g=0" title="x^{3}+ex^{2}+fx+g=0"
+class="math display" /></p>
+<p>其中：</p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20e%3D%5Cdfrac%7Bb%7D%7Ba%7D"
+alt="e=\dfrac{b}{a}" title="e=\dfrac{b}{a}" class="math display" /></p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20f%3D%5Cfrac%7Bc%7D%7Ba%7D"
+alt="f=\frac{c}{a}" title="f=\frac{c}{a}" class="math display" /></p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20g%3D%5Cdfrac%7Bd%7D%7Ba%7D"
+alt="g=\dfrac{d}{a}" title="g=\dfrac{d}{a}" class="math display" /></p>
+<p>(2)：对x进行替换，<img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20x%3Dy-%5Cdfrac%7Be%7D%7B3%7D"
+alt="x=y-\dfrac{e}{3}" title="x=y-\dfrac{e}{3}"
+class="math inline" />，消去二次项：</p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20y%5E%7B3%7D%2Bhy%2Bi%3D0"
+alt="y^{3}+hy+i=0" title="y^{3}+hy+i=0" class="math display" /></p>
+<p>其中：</p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20h%3Df-%5Cdfrac%7Be%5E%7B2%7D%7D%7B3%7D"
+alt="h=f-\dfrac{e^{2}}{3}" title="h=f-\dfrac{e^{2}}{3}"
+class="math display" /></p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20i%3D%5Cdfrac%7B4e%5E%7B3%7D%7D%7B27%7D-%5Cdfrac%7Bef%7D%7B3%7D"
+alt="i=\dfrac{4e^{3}}{27}-\dfrac{ef}{3}"
+title="i=\dfrac{4e^{3}}{27}-\dfrac{ef}{3}" class="math display" /></p>
+<p>(3)：对y进行替换，<img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20y%3Dz-%5Cfrac%7Bh%7D%7B3z%7D"
+alt="y=z-\frac{h}{3z}" title="y=z-\frac{h}{3z}"
+class="math inline" />，将式（2）中方程化为<img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20z%5E%7B3%7D-%5Cfrac%7Bh%5E%7B3%7D%7D%7B27z%5E%7B3%7D%7D%2Bi%3D0"
+alt="z^{3}-\frac{h^{3}}{27z^{3}}+i=0"
+title="z^{3}-\frac{h^{3}}{27z^{3}}+i=0" class="math inline" />;</p>
+<p>(4)：对<img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Ctext%7Bz%5Ctextasciicircum3%7D"
+alt="\text{z\textasciicircum3}" title="\text{z\textasciicircum3}"
+class="math inline" />进行替换，<img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20u%3Dz%5E%7B3%7D"
+alt="u=z^{3}" title="u=z^{3}" class="math inline" />，将式（3）化为<img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20u-%5Cfrac%7Bj%7D%7Bu%7D%2Bi%3D0"
+alt="u-\frac{j}{u}+i=0" title="u-\frac{j}{u}+i=0"
+class="math inline" />，其中：<img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20j%3D%5Cdfrac%7Bh%5E%7B3%7D%7D%7B27%7D"
+alt="j=\dfrac{h^{3}}{27}" title="j=\dfrac{h^{3}}{27}"
+class="math inline" />;该式可以化为一个一元二次方程，得到两个解，<img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20u_%7B1%7D"
+alt="u_{1}" title="u_{1}" class="math inline" />和<img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20u_%7B2%7D"
+alt="u_{2}" title="u_{2}" class="math inline" />；分别将<img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20u_%7B1%7D"
+alt="u_{1}" title="u_{1}" class="math inline" />，<img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20u_%7B2%7D"
+alt="u_{2}" title="u_{2}" class="math inline" />代换到<img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20u%3Dz%5E%7B3%7D"
+alt="u=z^{3}" title="u=z^{3}"
+class="math inline" />方程中，得到6个解<img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20z_%7B1%7D"
+alt="z_{1}" title="z_{1}" class="math inline" />，<img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20z_%7B2%7D"
+alt="z_{2}" title="z_{2}" class="math inline" />，<img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20z_%7B3%7D"
+alt="z_{3}" title="z_{3}" class="math inline" />，<img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20z_%7B4%7D"
+alt="z_{4}" title="z_{4}" class="math inline" />，<img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20z_%7B5%7D"
+alt="z_{5}" title="z_{5}" class="math inline" />，<img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20z_%7B6%7D"
+alt="z_{6}" title="z_{6}" class="math inline" />。将z的6个解代换到<img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20y%3Dz-%5Cdfrac%7Bh%7D%7B3z%7D"
+alt="y=z-\dfrac{h}{3z}" title="y=z-\dfrac{h}{3z}"
+class="math inline" />中时，最终得到的不同的解是3个（每个解都会重复一次，此处的不同并不是指解的值不同，而是将y表达为<img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20u_%7B1%7D%2Cu_%7B2%7D"
+alt="u_{1},u_{2}" title="u_{1},u_{2}"
+class="math inline" />的表达式后，只会有三个不同的表达式）。将y的三个解代换到<img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20x%3Dy-%5Cdfrac%7Be%7D%7B3%7D"
+alt="x=y-\dfrac{e}{3}" title="x=y-\dfrac{e}{3}"
+class="math inline" />中，最终得到x的三个解。</p>
+</div>
+</body>
+</html>

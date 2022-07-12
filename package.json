@@ -1,0 +1,23 @@
+{
+  "name": "examples",
+  "version": "1.0.0",
+  "description": "存储各类示例文件，以github page的方式发布",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/familyboat/examples.git"
+  },
+  "keywords": [
+    "github-page",
+    "example"
+  ],
+  "author": "familyboat",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/familyboat/examples/issues"
+  },
+  "homepage": "https://github.com/familyboat/examples#readme"
+}

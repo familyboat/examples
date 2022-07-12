@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>quartic-equation-solving</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<div class="CJK">
+<p>一元四次方程求解：</p>
+<p>（1）从最通用的一元四次方程出发（x代表未知数）：</p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20ax%5E%7B4%7D%2Bbx%5E%7B3%7D%2Bcx%5E%7B2%7D%2Bdx%2Be%3D0%5Ctext%7B%28a%5Censuremath%7B%5Cneq0%7D%29%7D"
+alt="ax^{4}+bx^{3}+cx^{2}+dx+e=0\text{(a\ensuremath{\neq0})}"
+title="ax^{4}+bx^{3}+cx^{2}+dx+e=0\text{(a\ensuremath{\neq0})}"
+class="math display" /></p>
+<p>（2）方程两边同时除以a：</p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20x%5E%7B4%7D%2Bfx%5E%7B3%7D%2Bgx%5E%7B3%7D%2Bhx%2Bi%3D0"
+alt="x^{4}+fx^{3}+gx^{3}+hx+i=0" title="x^{4}+fx^{3}+gx^{3}+hx+i=0"
+class="math display" /></p>
+<p>（3）对x做替换，<img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20y%3Dx-%5Cdfrac%7Bf%7D%7B4%7D"
+alt="y=x-\dfrac{f}{4}" title="y=x-\dfrac{f}{4}"
+class="math inline" />，得到<img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20y%5E%7B4%7D%2Bjy%5E%7B2%7D%2Bky%2Bl%3D0"
+alt="y^{4}+jy^{2}+ky+l=0" title="y^{4}+jy^{2}+ky+l=0"
+class="math inline" />；</p>
+<p>（4）此时，方程左边可以配出一个完全平方式：</p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20%28y%5E%7B2%7D%2B%5Cdfrac%7Bj%7D%7B2%7D%29%5E%7B2%7D%3Dmy%2Bn"
+alt="(y^{2}+\dfrac{j}{2})^{2}=my+n"
+title="(y^{2}+\dfrac{j}{2})^{2}=my+n" class="math display" /></p>
+<p>（5）但从这个表达式里得不到任何有用的信息，此时需要引入一个新的表达式：</p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%202%28y%5E%7B2%7D%2B%5Cdfrac%7Bi%7D%7B2%7D%29z%2Bz%5E%7B2%7D"
+alt="2(y^{2}+\dfrac{i}{2})z+z^{2}" title="2(y^{2}+\dfrac{i}{2})z+z^{2}"
+class="math display" /></p>
+<p>（6）在等式两边同时加上（5）中的式子：</p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20%28y%5E%7B2%7D%2B%5Cdfrac%7Bj%7D%7B2%7D%29%5E%7B2%7D%2B2%28y%5E%7B2%7D%2B%5Cdfrac%7Bj%7D%7B2%7D%29z%2Bz%5E%7B2%7D%3D2%28y%5E%7B2%7D%2B%5Cdfrac%7Bj%7D%7B2%7D%29z%2Bz%5E%7B2%7D%2Bmy%2Bn"
+alt="(y^{2}+\dfrac{j}{2})^{2}+2(y^{2}+\dfrac{j}{2})z+z^{2}=2(y^{2}+\dfrac{j}{2})z+z^{2}+my+n"
+title="(y^{2}+\dfrac{j}{2})^{2}+2(y^{2}+\dfrac{j}{2})z+z^{2}=2(y^{2}+\dfrac{j}{2})z+z^{2}+my+n"
+class="math display" /></p>
+<p>（7）对（6）中的式子做整理：</p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20%28y%5E%7B2%7D%2B%5Cdfrac%7Bj%7D%7B2%7D%2Bz%29%5E%7B2%7D%3D2zy%5E%7B2%7D%2Bmy%2Bz%5E%7B2%7D%2Bjz%2Bn"
+alt="(y^{2}+\dfrac{j}{2}+z)^{2}=2zy^{2}+my+z^{2}+jz+n"
+title="(y^{2}+\dfrac{j}{2}+z)^{2}=2zy^{2}+my+z^{2}+jz+n"
+class="math display" /></p>
+<p>（8）（7）中的式子的左边是完全平方式，右边为一元二次式，因此右边的一元二次式的<img
+style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Ctextstyle%20%5Ctext%7B%5Censuremath%7B%5CDelta%7D%7D"
+alt="\text{\ensuremath{\Delta}}" title="\text{\ensuremath{\Delta}}"
+class="math inline" />为0：</p>
+<p><img style="vertical-align:middle"
+src="https://latex.codecogs.com/png.latex?%5Cdisplaystyle%20%5CDelta%3Dm%5E%7B2%7D-8z%28z%5E%7B2%7D%2Bjz%2Bn%29%3D0"
+alt="\Delta=m^{2}-8z(z^{2}+jz+n)=0"
+title="\Delta=m^{2}-8z(z^{2}+jz+n)=0" class="math display" /></p>
+<p>（9）对（8）中的整理后得到一个关于变元z的一元三次方程，一元三次方程的求解过程可以参见这篇文章。</p>
+</div>
+</body>
+</html>
