@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <title>地理位置</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+  <style>
+    .button--state-hide {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <output id="output--geolocation" class="output"></output>
+  <script type="module">
+    const output = document.querySelector('#output--geolocation');
+
+    if ('geolocation' in navigator) {
+      const success = (position) => {
+        const { latitude, longitude, accuracy, altitude, altitudeAccuracy, heading, speed } = position.coords;
+        const html = `
+          经度：${longitude}；纬度：${latitude}; 精度：${accuracy} m
+          海拔：${altitude}；海拔精度：${altitudeAccuracy} m
+          朝向：${heading}
+          速度：${speed}
+        `;
+        output.innerHTML = html;
+      }
+
+      const error = (error) => {
+        let html;
+        const { code } = error;
+        switch (code) {
+          case GeolocationPositionError.TIMEOUT:
+            html = '请求超时';
+            break;
+          case GeolocationPositionError.POSITION_UNAVAILABLE:
+            html = '请求失败';
+            break;
+          case GeolocationPositionError.PERMISSION_DENIED:
+            html = '用户拒绝访问 geolocation';
+            break;
+        }
+
+        output.innerHTML = html;
+      }
+
+      const options = {
+        timeout: 10_000,
+        maximumAge: 0,
+        enableHighAccuracy: true,
+      }
+      
+      navigator.geolocation.getCurrentPosition(success, error, options)
+    } else {
+      const html = '你的浏览器不支持 geolocation';
+      output.innerHTML = html;
+    }
+  </script>
+</body>
+
+</html>
