@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <title>draw something</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+
+        height: 100%;
+        width: 100%;
+      }
+
+      #canvas--coordinate {
+        display: block;
+        width: 100%;
+        height: 100%;
+
+        touch-action: none;
+      }
+
+      output {
+        position: absolute;
+        background-color: rgb(188, 188, 188);
+        top: 0;
+      }
+
+      button {
+        all: unset;
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+      }
+
+      .button--hidden {
+        display: none;
+      }
+
+      input:invalid + span::after {
+        content: "❎";
+        padding-left: 4px;
+      }
+
+      ul {
+        list-style-type: none;
+      }
+
+      .menu {
+        padding: 10px 8px;
+
+        max-width: 80ch;
+      }
+
+      .submenu {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+      }
+
+      .item {
+        padding: 2px 4px;
+
+        border: 1px purple solid;
+        border-radius: 4px;
+
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .item--active {
+        outline: goldenrod solid 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <canvas id="canvas--coordinate"></canvas>
+    <output>
+      <ul id="config" class="menu">
+        <li id="shape">
+          shape
+          <ul class="submenu">
+            <li class="item" data-type="line">line</li>
+            <li class="item" data-type="multiline">multiline</li>
+          </ul>
+        </li>
+
+        <li id="style">
+          style
+          <ul class="submenu">
+            <li>
+              <label>
+                line width
+                <input
+                  id="lineWidth"
+                  type="number"
+                  min="0.1"
+                  max="20"
+                  step="0.1"
+                  value="1"
+                  placeholder="input line width"
+                  required
+                />
+                <span class="validity"></span>
+              </label>
+            </li>
+            <li>
+              <label>
+                stroke style
+                <input id="strokeStyle" type="color" value="#000000" />
+              </label>
+            </li>
+          </ul>
+        </li>
+
+        <li id="operation">
+          operation
+          <ul class="submenu">
+            <li>
+              <button id="export" class="item">export png</button>
+            </li>
+            <li>
+              <button id="share" class="item">share png</button>
+            </li>
+          </ul>
+        </li>
+
+        <li id="help">
+          <details>
+            <summary>help</summary>
+            <section>
+              <article>
+                <p>
+                  绘图软件分为两种模式，一是绘图模式，二是移动模式。
+                  在绘图模式中，可以绘制直线（目前仅支持直线）；在
+                  移动模式中，可以对画布进行平移，缩放，旋转。
+                </p>
+                <p>
+                  软件初始化后的模式为移动模式，通过点击<kbd>line</kbd>
+                  按钮，会切换到绘图模式，且当前绘制图形为直线
+                </p>
+              </article>
+            </section>
+            <section>
+              <header>桌面浏览器</header>
+              <ol>
+                <li>
+                  平移：处于移动模式时，按下鼠标左键，移动鼠标，就能平移画布，
+                  当抬起鼠标时，平移结束。
+                </li>
+                <li>
+                  旋转：处于移动模式时，按下<kbd>shift</kbd>键，滚动鼠标滚轮，
+                  就能旋转画布，释放<kbd>shift</kbd>键后，旋转结束。
+                </li>
+                <li>
+                  缩放：处于移动模式时，按下<kbd>ctrl</kbd>键，滚动鼠标滚轮，
+                  就能缩放画布，释放<kbd>shift</kbd>键后，缩放结束。
+                </li>
+              </ol>
+            </section>
+            <section>
+              <header>手机浏览器</header>
+              <ol>
+                <li>
+                  平移：处于移动模式时，单指滑动，就能平移画布，抬起手指，平移结束。
+                </li>
+                <li>
+                  旋转：处于移动模式时，一指按下后不动，另一指按下后移动，就能旋转，
+                  旋转中心为不动的手指，抬起手指，旋转结束。
+                </li>
+                <li>
+                  缩放：处于移动模式时，两指按下后，移动两个手指，在移动时，不会同时
+                  有两个手指同时移动，因此，以不动的手指为缩放中心，抬起手指，缩放结束。
+                </li>
+              </ol>
+            </section>
+          </details>
+        </li>
+      </ul>
+    </output>
+    <script type="module">
+      import Draw from "./draw.js";
+      const canvas = document.querySelector("#canvas--coordinate");
+      const output = document.querySelector("#config");
+      const instance = new Draw(canvas, output);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <title>笛卡尔坐标</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+
+        height: 100%;
+        width: 100%;
+      }
+
+      #canvas--coordinate {
+        display: block;
+        width: 100%;
+        height: 100%;
+
+        touch-action: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <canvas id="canvas--coordinate"></canvas>
+    <script type="module">
+      import Line from "./draw.js/shape/line.js";
+
+      const canvas = document.querySelector("#canvas--coordinate");
+      const context = canvas.getContext("2d");
+      const { width, height } = canvas.getBoundingClientRect();
+      canvas.width = width;
+      canvas.height = height;
+      const identity = [1, 0, 0, 1, 0, 0];
+
+      const waitTime = (time) => {
+        return new Promise((resolve) => {
+          setTimeout(resolve, time);
+        });
+      };
+
+      const clearCanvas = () => {
+        context.setTransform(...identity);
+        context.clearRect(0, 0, width, height);
+        drawBase();
+      };
+
+      const drawBase = () => {
+        let i = 0;
+        while (i < height) {
+          context.save();
+          context.lineWidth = 1 - (i / 50) * 0.1;
+
+          const line = new Line(0, i, width, i);
+          line.draw(context);
+          i += 50;
+          context.restore();
+        }
+        i = 0;
+        while (i < width) {
+          context.save();
+          const w = 1 - (i / 50) * 0.1;
+          context.lineWidth = w;
+          console.log(w);
+          console.log(context.lineWidth);
+          const line = new Line(i, 0, i, height);
+          line.draw(context);
+          i += 50;
+          context.restore();
+        }
+      };
+
+      (async function () {
+        drawBase();
+        context.lineWidth  = 1;
+
+        const line1 = new Line(20, 20, 50, 50);
+        line1.draw(context);
+        line1.pan(50, 50);
+        await waitTime(1000);
+        clearCanvas();
+        line1.draw(context);
+        line1.centerScale(50, 50, 2, 2);
+        await waitTime(1000);
+        clearCanvas();
+        line1.draw(context);
+        line1.centerRotate(150, 150, 60);
+        await waitTime(1000);
+        clearCanvas();
+        line1.draw(context);
+      })();
+    </script>
+  </body>
+</html>
