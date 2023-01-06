@@ -12,7 +12,7 @@ export const isCenterRotate = (context) => {
 
 export const toRadian = angle => angle / 180 * Math.PI;
 export const toAngle = radian => radian / Math.PI * 180;
-export const eulidLength = (start, end) => {
+export const euclidLength = (start, end) => {
   const dx = end.x - start.x;
   const dy = end.y - start.y;
   return Math.sqrt(dx * dx + dy * dy);

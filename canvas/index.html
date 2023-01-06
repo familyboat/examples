@@ -45,57 +45,6 @@
           setTimeout(resolve, time);
         });
       };
-
-      const clearCanvas = () => {
-        context.setTransform(...identity);
-        context.clearRect(0, 0, width, height);
-        drawBase();
-      };
-
-      const drawBase = () => {
-        let i = 0;
-        while (i < height) {
-          context.save();
-          context.lineWidth = 1 - (i / 50) * 0.1;
-
-          const line = new Line(0, i, width, i);
-          line.draw(context);
-          i += 50;
-          context.restore();
-        }
-        i = 0;
-        while (i < width) {
-          context.save();
-          const w = 1 - (i / 50) * 0.1;
-          context.lineWidth = w;
-          console.log(w);
-          console.log(context.lineWidth);
-          const line = new Line(i, 0, i, height);
-          line.draw(context);
-          i += 50;
-          context.restore();
-        }
-      };
-
-      (async function () {
-        drawBase();
-        context.lineWidth  = 1;
-
-        const line1 = new Line(20, 20, 50, 50);
-        line1.draw(context);
-        line1.pan(50, 50);
-        await waitTime(1000);
-        clearCanvas();
-        line1.draw(context);
-        line1.centerScale(50, 50, 2, 2);
-        await waitTime(1000);
-        clearCanvas();
-        line1.draw(context);
-        line1.centerRotate(150, 150, 60);
-        await waitTime(1000);
-        clearCanvas();
-        line1.draw(context);
-      })();
     </script>
   </body>
 </html>

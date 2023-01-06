@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Web audio</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body>
+  <div>
+    <p>video source</p>
+    <video controls id="webcam" width="480" height="360"></video>
+    <div>
+      <button id="stop">stop recording</button>
+    </div>
+  </div>
+  <div>
+    <p>video copy</p>
+    <video controls id="webcam-copy" width="480" height="360"></video>
+    <div>
+      <button id="download">download</button>
+    </div>
+  </div>
+  <div>
+    <output id="info"></output>
+  </div>
+
+  <script>
+    let recording = true;
+
+    const info = document.querySelector("#info");
+    const video = document.querySelector("#webcam");
+    const videoCopy = document.querySelector("#webcam-copy");
+    const stopBtn = document.querySelector("#stop");
+    const downloadBtn = document.querySelector("#download");
+
+    if (navigator.mediaDevices) {
+      navigator.mediaDevices
+        .getUserMedia({
+          video: true,
+          audio: false,
+        })
+        .then((stream) => {
+          const options = {
+            mimeType: "video/webm; codecs=vp9",
+          };
+          const recorder = new MediaRecorder(stream, options);
+          const data = [];
+          recorder.ondataavailable = (e) => {
+            data.push(e.data);
+          };
+          recorder.start();
+          recorder.onerror = (e) => {
+            throw new Error(e.name);
+          };
+          recorder.onstop = (e) => {
+            videoCopy.src = window.URL.createObjectURL(new Blob(data));
+          };
+
+          stopBtn.onclick = (e) => {
+            if (recording) {
+              recording = false;
+              recorder.stop();
+            }
+          };
+
+          downloadBtn.onclick = (e) => {
+            if (!recording) {
+              const a = document.createElement("a");
+              document.body.appendChild(a);
+              const url = window.URL.createObjectURL(
+                new Blob(data, {
+                  type: "video/webm",
+                })
+              );
+              a.style.display = "none";
+              a.href = url;
+              a.download = "text.webm";
+              a.click();
+              window.URL.revokeObjectURL(url);
+            }
+          };
+
+          video.autoplay = true;
+          video.srcObject = stream;
+        })
+        .catch(() => {
+          info.textContent =
+            "There has been a problem retrieving the streams - are you running on file:/// or did you disallow access?";
+        });
+    } else {
+      info.textContent = "getUserMedia is not supported in this browser";
+    }
+  </script>
+</body>
+
+</html>

@@ -1,4 +1,4 @@
-import { eulidLength, inclination, isCenterRotate, isCenterScale, toAngle } from "../utils/motion.js";
+import { euclidLength, inclination, isCenterRotate, isCenterScale, toAngle } from "../utils/motion.js";
 
 class Transform {
   #active = true;
@@ -61,7 +61,7 @@ class Transform {
       } else {
         // center scale
         const start = inactive[0];
-        const scale = eulidLength(start, end1) / eulidLength(start, end2);
+        const scale = euclidLength(start, end1) / euclidLength(start, end2);
         this.#emitter.emit('centerScale', {
           cx: start.x,
           cy: start.y,
