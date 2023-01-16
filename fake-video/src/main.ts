@@ -10,7 +10,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <ul id="searchList"></ul>
 `;
 
-const fakeVideoServer = "http://localhost:8080";
+const fakeVideoServer = "https://familyboat-deno-website-fze4b9y7w8xg.deno.dev";
 
 const form = document.querySelector("#searchForm") as HTMLFormElement;
 const submitBtn = document.querySelector("#submit") as HTMLButtonElement;
