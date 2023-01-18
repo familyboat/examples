@@ -1,9 +1,0 @@
-(function(){const o=document.createElement("link").relList;if(o&&o.supports&&o.supports("modulepreload"))return;for(const e of document.querySelectorAll('link[rel="modulepreload"]'))i(e);new MutationObserver(e=>{for(const t of e)if(t.type==="childList")for(const r of t.addedNodes)r.tagName==="LINK"&&r.rel==="modulepreload"&&i(r)}).observe(document,{childList:!0,subtree:!0});function s(e){const t={};return e.integrity&&(t.integrity=e.integrity),e.referrerpolicy&&(t.referrerPolicy=e.referrerpolicy),e.crossorigin==="use-credentials"?t.credentials="include":e.crossorigin==="anonymous"?t.credentials="omit":t.credentials="same-origin",t}function i(e){if(e.ep)return;e.ep=!0;const t=s(e);fetch(e.href,t)}})();document.querySelector("#app").innerHTML=`
-  <div>
-    <form id="searchForm">
-      <input type="text" name="keyword" id="keyword"/>
-      <button type="submit" id="submit">搜索</button>
-    </form>
-  </div>
-  <ul id="searchList"></ul>
-`;const c="https://familyboat-deno-website-fze4b9y7w8xg.deno.dev",y=document.querySelector("#searchForm"),L=document.querySelector("#submit"),n=document.querySelector("#searchList");L.addEventListener("click",async a=>{a.preventDefault();const s=new FormData(y).get("keyword"),e=await(await fetch(c+"/search",{method:"POST",body:JSON.stringify({keyword:s}),mode:"cors"})).text();n.innerHTML=e,n.querySelectorAll("a").forEach(r=>{r.addEventListener("click",async l=>{l.preventDefault();const d=l.target.href||"";if(d.endsWith(".html")){const m=await(await fetch(c+"/videos?url="+d)).text();n.innerHTML=m,n.querySelectorAll("a").forEach(p=>{p.addEventListener("click",async u=>{u.preventDefault();const f=u.target.href||"";if(f.endsWith(".html")){const h=await(await fetch(c+"/video?url="+f)).text();if(h===""){alert("This link can not be accessed. Please click other links if exist.");return}window.open(h,"_blank")}})})}})})});

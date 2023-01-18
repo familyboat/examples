@@ -10,7 +10,9 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <ul id="searchList"></ul>
 `;
 
-const fakeVideoServer = "https://familyboat-deno-website-fze4b9y7w8xg.deno.dev";
+const fakeVideoServer = "https://fake-video.deno.dev";
+const error =
+  "This link can not be accessed. Please click other links if exist.";
 
 const form = document.querySelector("#searchForm") as HTMLFormElement;
 const submitBtn = document.querySelector("#submit") as HTMLButtonElement;
@@ -52,15 +54,17 @@ submitBtn.addEventListener("click", async (e) => {
               const respResult = await resp.text();
 
               if (respResult === "") {
-                alert(
-                  "This link can not be accessed. Please click other links if exist."
-                );
+                alert(error);
                 return;
               }
               window.open(respResult, "_blank");
+            } else {
+              alert(error);
             }
           });
         });
+      } else {
+        alert(error);
       }
     });
   });
