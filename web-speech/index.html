@@ -25,6 +25,9 @@
 
         <section>
           <button id="speak" type="button">speak</button>
+          <button id="pause" type="button">pause</button>
+          <button id="resume" type="button">resume</button>
+          <button id="cancel" type="button">cancel</button>
         </section>
 
       </form>
@@ -34,6 +37,9 @@
     let voices;
     const speechForm = document.querySelector('#speech');
     const speakBtn = document.querySelector('#speak');
+    const pauseBtn = document.querySelector('#pause');
+    const resumeBtn = document.querySelector('#resume');
+    const cancelBtn = document.querySelector('#cancel');
 
     speakBtn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -54,6 +60,21 @@
       }
       speechSynthesis.speak(utterance);
     });
+
+    pauseBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      speechSynthesis.pause();
+    })
+
+    resumeBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      speechSynthesis.resume();
+    })
+
+    cancelBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      speechSynthesis.cancel();
+    })
 
     function generateVoiceContent(voice) {
       const { name, lang, default: d } = voice;
