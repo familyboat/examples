@@ -14,7 +14,6 @@ function App() {
         const index = subIndex.current;
         const para = s.slice(0, index);
         subIndex.current = index + 1;
-        console.log(para);
         updateParagraph(para);
 
         if (index < s.length) {
