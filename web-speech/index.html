@@ -165,7 +165,12 @@
             if (![PAUSED].includes(phase)) return;
             log('Resuming ...')
             phase = RESUMING;
-            speechSynthesis.resume();
+            try {
+              speechSynthesis.resume();
+            } catch (err) {
+              log(err);
+            }
+            // speechSynthesis.resume();
             phase = RESUMED;
           });
         }
