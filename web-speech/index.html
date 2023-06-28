@@ -9,19 +9,6 @@
       section {
         margin-block-end: 1em;
       }
-
-      #status-item {
-        animation: 3s ease-in 1s infinite alternate both running slidein;
-      }
-
-      @keyframes slidein {
-        0% {
-          margin-inline-start: 0%;
-        }
-        100% {
-          margin-inline-start: 100%;
-        }
-      }
     </style>
   </head>
 
@@ -30,6 +17,7 @@
       <!-- speech -->
       <section>
         <form id="speech">
+          <!-- utterance content -->
           <section>
             <textarea
               name="content"
@@ -39,13 +27,15 @@
             ></textarea>
           </section>
 
+          <!-- utterance voice -->
           <section>
-            <label for="voice">Choose a voice:</label>
-            <input list="voiceSelect" id="voice" name="voice" />
+            <label for="currentVoice">Choose a voice:</label>
+            <input list="voiceList" id="currentVoice" name="currentVoice" />
 
-            <datalist id="voiceSelect"> </datalist>
+            <datalist id="voiceList"> </datalist>
           </section>
 
+          <!-- operate -->
           <section>
             <button id="speak" type="button">speak</button>
             <button id="pause" type="button">pause</button>
@@ -55,211 +45,12 @@
         </form>
       </section>
 
-      <section>
-        <div id="status"></div>
-      </section>
-
       <!-- log -->
       <section>
         <ul id="log"></ul>
       </section>
     </main>
-    <script type="module">
-      // remove child node
-      function removeChild(child) {
-        const parent = child.parentElement;
-        parent && parent.removeChild(child);
-      }
 
-      // error function
-      function errorValid(prefix, isValid) {
-        return `${prefix} is ${
-          isValid ? "available" : "not available"
-        } in this browser`;
-      }
-
-      // log function
-      const elementLog = document.querySelector("#log");
-      let index = 0;
-      function log(message) {
-        if (typeof message !== "string") return;
-        if (!message) return;
-        const li = document.createElement("li");
-        const text = document.createTextNode("#" + index++ + ": " + message);
-        li.appendChild(text);
-        elementLog.appendChild(li);
-      }
-
-      // set up status
-      const elementStatus = document.querySelector("#status");
-      function setup(status) {
-        const content = !status
-          ? ""
-          : `<span id='status-item'>${status}</span>`;
-        elementStatus.innerHTML = content;
-      }
-
-      // initialize
-      log("Initialize app");
-      let voices;
-      const DEAD = "dead";
-      const STARTING = "starting";
-      const STARTED = "started";
-      const PAUSING = "pausing";
-      const PAUSED = "paused";
-      const RESUMING = "resuming";
-      const RESUMED = "resumed";
-      const CANCELING = "canceling";
-      const CANCELED = "canceled";
-      let phase = DEAD;
-      const speechForm = document.querySelector("#speech");
-      const speakBtn = document.querySelector("#speak");
-      const pauseBtn = document.querySelector("#pause");
-      const resumeBtn = document.querySelector("#resume");
-      const cancelBtn = document.querySelector("#cancel");
-
-      function init() {
-        // detect speechSynthesis functionality whether or not it is available
-        let prefix = "speechSynthesis";
-        if (!window.speechSynthesis) {
-          log(errorValid(prefix, false));
-          return;
-        } else {
-          log(errorValid(prefix, true));
-        }
-
-        prefix = "speak";
-        if (!speechSynthesis.speak) {
-          log(errorValid(prefix, false));
-          removeChild(speakBtn);
-        } else {
-          log(errorValid(prefix, true));
-          speakBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            if (![DEAD, CANCELED].includes(phase)) return;
-
-            const fd = new FormData(speechForm);
-            const content = fd.get("content");
-            const voiceOption = fd.get("voice");
-
-            if (!content) {
-              log("There is nothing to speak!");
-              return;
-            }
-            if (!voiceOption) {
-              log("There is no voice!");
-              return;
-            }
-            log("Starting ...");
-            phase = STARTING;
-            setup(phase);
-
-            const utterance = new SpeechSynthesisUtterance(content);
-
-            utterance.onerror = function (e) {
-              log(`Error - ${e}`);
-            };
-
-            utterance.onend = function (e) {
-              log(`End - ${e}`);
-              setup("");
-              cancelBtn.click();
-            };
-
-            for (const voice of voices) {
-              if (generateVoiceContent(voice) === voiceOption) {
-                utterance.voice = voice;
-              }
-            }
-            speechSynthesis.speak(utterance);
-            phase = STARTED;
-          });
-        }
-
-        prefix = "pause";
-        if (!speechSynthesis.pause) {
-          log(errorValid(prefix, false));
-          removeChild(pauseBtn);
-        } else {
-          log(errorValid(prefix, true));
-          pauseBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            if (![STARTED, RESUMED].includes(phase)) return;
-            log("Pausing ...");
-            phase = PAUSING;
-            setup("");
-            speechSynthesis.pause();
-            phase = PAUSED;
-          });
-        }
-
-        prefix = "resume";
-        if (!speechSynthesis.resume) {
-          log(errorValid(prefix, false));
-          removeChild(resumeBtn);
-        } else {
-          log(errorValid(prefix, true));
-          resumeBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            if (![PAUSED].includes(phase)) return;
-            log("Resuming ...");
-            phase = RESUMING;
-            setup("");
-            speechSynthesis.resume();
-            phase = RESUMED;
-          });
-        }
-
-        prefix = "cancle";
-        if (!speechSynthesis.cancel) {
-          log(errorValid(prefix, false));
-        } else {
-          log(errorValid(prefix, true));
-          cancelBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            if (![STARTED, RESUMED, PAUSED].includes(phase)) return;
-            log("Canceling ...");
-            phase = CANCELING;
-            setup("");
-            speechSynthesis.cancel();
-            phase = CANCELED;
-          });
-        }
-      }
-      init();
-
-      function generateVoiceContent(voice) {
-        const { name, lang, default: d } = voice;
-        let content = `${name} (${lang})`;
-        if (d) {
-          content += " - DEFAULT";
-        }
-        return content;
-      }
-
-      function populateVoiceList() {
-        if (typeof speechSynthesis === "undefined") {
-          return;
-        }
-
-        voices = speechSynthesis.getVoices();
-
-        for (let i = 0; i < voices.length; i++) {
-          const option = document.createElement("option");
-          const voice = voices[i];
-          option.textContent = generateVoiceContent(voice);
-
-          voiceSelect.appendChild(option);
-        }
-      }
-
-      populateVoiceList();
-      if (
-        typeof speechSynthesis !== "undefined" &&
-        speechSynthesis.onvoiceschanged !== undefined
-      ) {
-        speechSynthesis.onvoiceschanged = populateVoiceList;
-      }
-    </script>
+    <script src="./speech.js" type="module"></script>
   </body>
 </html>
