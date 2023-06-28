@@ -38,7 +38,7 @@ class Speak {
     }
     
     window.onbeforeunload = () => {
-      speechSynthesis.cancel();
+      cancelBtn.click();
     }
 
     this.init();
@@ -118,7 +118,8 @@ class Speak {
       };
 
       utterance.onend = (e) => {
-        log(`End - ${e}`);
+        const {elapsedTime} = e;
+        log(`End - elapsedTime: ${elapsedTime}`);
         this.clean();
       };
       this.phase = STARTED;
