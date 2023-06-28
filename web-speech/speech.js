@@ -1,6 +1,6 @@
 import { log } from "./log.js";
-import { removeChild, hasIt } from "./util.js";
-import { populateVoiceList, voices, generateVoiceContent } from "./voice.js";
+import { hasIt, pop, removeChild } from "./util.js";
+import { generateVoiceContent, populateVoiceList, voices } from "./voice.js";
 
 // initialize
 log("Initialize app");
@@ -22,13 +22,14 @@ const resumeBtn = document.querySelector("#resume");
 const cancelBtn = document.querySelector("#cancel");
 
 class Speak {
-  constructor () {
+  constructor() {
     this.phase = DEAD;
     this.timer = null;
-    speakBtn.addEventListener('click', this.speak.bind(this));
-    pauseBtn.addEventListener('click', this.pause.bind(this));
-    resumeBtn.addEventListener('click', this.resume.bind(this));
-    cancelBtn.addEventListener('click', this.cancel.bind(this));
+    this.contentList = [];
+    speakBtn.addEventListener("click", this.speak.bind(this));
+    pauseBtn.addEventListener("click", this.pause.bind(this));
+    resumeBtn.addEventListener("click", this.resume.bind(this));
+    cancelBtn.addEventListener("click", this.cancel.bind(this));
 
     if (
       typeof speechSynthesis !== "undefined" &&
@@ -36,10 +37,10 @@ class Speak {
     ) {
       speechSynthesis.onvoiceschanged = populateVoiceList;
     }
-    
+
     window.onbeforeunload = () => {
       cancelBtn.click();
-    }
+    };
 
     this.init();
   }
@@ -53,7 +54,7 @@ class Speak {
     } else {
       log(hasIt(prefix, true));
     }
-  
+
     prefix = "speak";
     if (!speechSynthesis.speak) {
       log(hasIt(prefix, false));
@@ -61,7 +62,7 @@ class Speak {
     } else {
       log(hasIt(prefix, true));
     }
-  
+
     prefix = "pause";
     if (!speechSynthesis.pause) {
       log(hasIt(prefix, false));
@@ -69,7 +70,7 @@ class Speak {
     } else {
       log(hasIt(prefix, true));
     }
-  
+
     prefix = "resume";
     if (!speechSynthesis.resume) {
       log(hasIt(prefix, false));
@@ -77,7 +78,7 @@ class Speak {
     } else {
       log(hasIt(prefix, true));
     }
-  
+
     prefix = "cancle";
     if (!speechSynthesis.cancel) {
       log(hasIt(prefix, false));
@@ -86,50 +87,63 @@ class Speak {
     }
   }
 
-  getContent () {
+  getContent() {
+    if (this.contentList.length) return pop(this.contentList);
+
     const fd = new FormData(speechForm);
-    return fd.get('content');
+    const content = fd.get("content") || "";
+    this.contentList = content.split("\n");
+    return pop(this.contentList)
   }
 
-  getVoice () {
+  getVoice() {
     const fd = new FormData(speechForm);
-    return fd.get('currentVoice');
+    return fd.get("currentVoice");
   }
 
-  speak (event) {
+  speak(event) {
     event.preventDefault();
     if (![DEAD, CANCELED].includes(this.phase)) return;
     const content = this.getContent();
-    const voice = this.getVoice();
+    let voice = this.getVoice();
     if (content && voice) {
-      log('Starting ...')
+      log("Starting ...");
       this.phase = STARTING;
-      const utterance = new SpeechSynthesisUtterance(content);
+
       for (const v of voices) {
         if (generateVoiceContent(v) === voice) {
-          utterance.voice = v;
+          voice = v;
           break;
         }
       }
-      speechSynthesis.speak(utterance);
+
+      const utterance = new SpeechSynthesisUtterance(content);
       utterance.onerror = (e) => {
         log(`Error - ${e.error}`);
         this.clean();
       };
 
       utterance.onend = (e) => {
-        const {elapsedTime} = e;
+        const { elapsedTime } = e;
+        if (this.contentList.length) {
+          this.phase = DEAD;
+          speakBtn.click();
+          return
+        }
         log(`End - elapsedTime: ${elapsedTime}`);
         this.clean();
       };
+
+      speechSynthesis.speak(utterance);
+
       this.phase = STARTED;
       this.poll();
     } else {
-      log('content or voice is missing');
+      log("content or voice is missing");
     }
   }
 
-  pause (event) {
+  pause(event) {
     event.preventDefault();
     if (![STARTED, RESUMED].includes(this.phase)) return;
     log("Pausing ...");
@@ -138,7 +152,7 @@ class Speak {
     this.phase = PAUSED;
   }
 
-  resume (event) {
+  resume(event) {
     event.preventDefault();
     if (![PAUSED].includes(this.phase)) return;
     log("Resuming ...");
@@ -147,7 +161,7 @@ class Speak {
     this.phase = RESUMED;
   }
 
-  cancel (event) {
+  cancel(event) {
     event.preventDefault();
     if (![STARTED, RESUMED, PAUSED].includes(this.phase)) return;
     log("Canceling ...");
@@ -156,20 +170,21 @@ class Speak {
     this.phase = CANCELED;
   }
 
-  poll () {
+  poll() {
+    if (this.timer) return;
     this.timer = setInterval(async () => {
-      await fetch('/');
-    }, 1000)
+      await fetch("/");
+    }, 1000);
   }
 
-  clean () {
+  clean() {
     cancelBtn.click();
     if (this.timer) {
-      log('cleaning ...')
+      log("cleaning ...");
       clearInterval(this.timer);
       this.timer = null;
     }
   }
 }
 
-new Speak()
+new Speak();
