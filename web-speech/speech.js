@@ -159,7 +159,7 @@ class Speak {
   poll () {
     this.timer = setInterval(async () => {
       await fetch('/');
-    }, 5000)
+    }, 1000)
   }
 
   clean () {
