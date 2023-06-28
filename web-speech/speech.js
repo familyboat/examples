@@ -24,7 +24,6 @@ const cancelBtn = document.querySelector("#cancel");
 class Speak {
   constructor() {
     this.phase = DEAD;
-    this.timer = null;
     this.contentList = [];
     speakBtn.addEventListener("click", this.speak.bind(this));
     pauseBtn.addEventListener("click", this.pause.bind(this));
@@ -137,7 +136,6 @@ class Speak {
       speechSynthesis.speak(utterance);
 
       this.phase = STARTED;
-      this.poll();
     } else {
       log("content or voice is missing");
     }
@@ -170,20 +168,8 @@ class Speak {
     this.phase = CANCELED;
   }
 
-  poll() {
-    if (this.timer) return;
-    this.timer = setInterval(async () => {
-      await fetch("/");
-    }, 1000);
-  }
-
   clean() {
     cancelBtn.click();
-    if (this.timer) {
-      log("cleaning ...");
-      clearInterval(this.timer);
-      this.timer = null;
-    }
   }
 }
 
