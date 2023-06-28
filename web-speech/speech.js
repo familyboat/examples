@@ -1,5 +1,5 @@
 import { log } from "./log.js";
-import { hasIt, pop, removeChild } from "./util.js";
+import { hasIt, removeChild } from "./util.js";
 import { generateVoiceContent, populateVoiceList, voices } from "./voice.js";
 
 // initialize
@@ -8,28 +8,21 @@ log("Initialize app");
 const DEAD = "dead";
 const STARTING = "starting";
 const STARTED = "started";
-const PAUSING = "pausing";
-const PAUSED = "paused";
-const RESUMING = "resuming";
-const RESUMED = "resumed";
 const CANCELING = "canceling";
 const CANCELED = "canceled";
 
 const speechForm = document.querySelector("#speech");
 const speakBtn = document.querySelector("#speak");
-const pauseBtn = document.querySelector("#pause");
-const resumeBtn = document.querySelector("#resume");
-const cancelBtn = document.querySelector("#cancel");
 
 class Speak {
   constructor() {
     this.phase = DEAD;
     this.timer = null;
     this.contentList = [];
-    speakBtn.addEventListener("click", this.speak.bind(this));
-    pauseBtn.addEventListener("click", this.pause.bind(this));
-    resumeBtn.addEventListener("click", this.resume.bind(this));
-    cancelBtn.addEventListener("click", this.cancel.bind(this));
+    // length of this.contentList
+    this.len = null;
+    this.rowId = -1;
+    speakBtn.addEventListener("click", this.start.bind(this));
 
     if (
       typeof speechSynthesis !== "undefined" &&
@@ -39,7 +32,7 @@ class Speak {
     }
 
     window.onbeforeunload = () => {
-      cancelBtn.click();
+      this.cancel();
     };
 
     this.init();
@@ -63,22 +56,6 @@ class Speak {
       log(hasIt(prefix, true));
     }
 
-    prefix = "pause";
-    if (!speechSynthesis.pause) {
-      log(hasIt(prefix, false));
-      removeChild(pauseBtn);
-    } else {
-      log(hasIt(prefix, true));
-    }
-
-    prefix = "resume";
-    if (!speechSynthesis.resume) {
-      log(hasIt(prefix, false));
-      removeChild(resumeBtn);
-    } else {
-      log(hasIt(prefix, true));
-    }
-
     prefix = "cancle";
     if (!speechSynthesis.cancel) {
       log(hasIt(prefix, false));
@@ -88,12 +65,21 @@ class Speak {
   }
 
   getContent() {
-    if (this.contentList.length) return pop(this.contentList);
+    // new content
+    if (this.rowId === -1) {
+      const fd = new FormData(speechForm);
+      const content = fd.get("content") || "";
+      this.contentList = content.split("\n").filter((s) => s);
+      this.len = this.contentList.length;
+    }
 
-    const fd = new FormData(speechForm);
-    const content = fd.get("content") || "";
-    this.contentList = content.split("\n");
-    return pop(this.contentList)
+    // has content
+    if (this.len && (this.rowId + 1) < this.len) {
+      this.rowId++;
+      return this.contentList[this.rowId];
+    } else {
+      return "";
+    }
   }
 
   getVoice() {
@@ -101,37 +87,33 @@ class Speak {
     return fd.get("currentVoice");
   }
 
-  speak(event) {
-    event.preventDefault();
-    if (![DEAD, CANCELED].includes(this.phase)) return;
+  speak() {
     const content = this.getContent();
-    let voice = this.getVoice();
+    const voice = this.getVoice();
     if (content && voice) {
-      log("Starting ...");
+      speakBtn.textContent = "stop";
+      if (!this.rowId || this.phase === CANCELED) log("Starting ...");
       this.phase = STARTING;
 
+      const utterance = new SpeechSynthesisUtterance(content);
       for (const v of voices) {
         if (generateVoiceContent(v) === voice) {
-          voice = v;
+          utterance.voice = v;
           break;
         }
       }
 
-      const utterance = new SpeechSynthesisUtterance(content);
-      utterance.onerror = (e) => {
-        log(`Error - ${e.error}`);
-        this.clean();
-      };
-
       utterance.onend = (e) => {
+        this.phase = DEAD;
         const { elapsedTime } = e;
-        if (this.contentList.length) {
-          this.phase = DEAD;
+        // there is content to read
+        if ((this.rowId + 1) < this.len) {
           speakBtn.click();
-          return
+        } else {
+          log(`End - elapsedTime: ${elapsedTime}`);
+          this.clean();
+          this.cleanTimer();
         }
-        log(`End - elapsedTime: ${elapsedTime}`);
-        this.clean();
       };
 
       speechSynthesis.speak(utterance);
@@ -143,31 +125,25 @@ class Speak {
     }
   }
 
-  pause(event) {
-    event.preventDefault();
-    if (![STARTED, RESUMED].includes(this.phase)) return;
-    log("Pausing ...");
-    this.phase = PAUSING;
-    speechSynthesis.pause();
-    this.phase = PAUSED;
-  }
-
-  resume(event) {
-    event.preventDefault();
-    if (![PAUSED].includes(this.phase)) return;
-    log("Resuming ...");
-    this.phase = RESUMING;
-    speechSynthesis.resume();
-    this.phase = RESUMED;
-  }
-
-  cancel(event) {
-    event.preventDefault();
-    if (![STARTED, RESUMED, PAUSED].includes(this.phase)) return;
+  cancel() {
+    speakBtn.textContent = "speak";
     log("Canceling ...");
     this.phase = CANCELING;
     speechSynthesis.cancel();
     this.phase = CANCELED;
+    this.rowId--;
+    this.cleanTimer();
+  }
+
+  start(event) {
+    event.preventDefault();
+    // speaking now, so should switch it to not speaking
+    if (this.phase === STARTED) {
+      this.cancel();
+    } // not speaking now, so should switch it to speaking
+    else if ([DEAD, CANCELED].includes(this.phase)) {
+      this.speak();
+    }
   }
 
   poll() {
@@ -177,10 +153,18 @@ class Speak {
     }, 1000);
   }
 
+  // this.contentList is over
+  // speaing is over
   clean() {
-    cancelBtn.click();
+    this.contentList.length = 0;
+    this.len = null;
+    this.rowId = -1;
+    speakBtn.textContent = "speak";
+  }
+
+  cleanTimer() {
     if (this.timer) {
-      log("cleaning ...");
+      log("cleaning timer ...");
       clearInterval(this.timer);
       this.timer = null;
     }

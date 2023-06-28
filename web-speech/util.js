@@ -10,15 +10,3 @@ export function hasIt(functionality, isAvailable) {
     isAvailable ? "available" : "not available"
   } in this browser`;
 }
-
-export function pop(list = []) {
-  let c = null
-  while (!c) {
-    if (list.length){
-      c = list.shift();
-    } else {
-      break;
-    }
-  }
-  return c;
-}
