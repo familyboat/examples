@@ -9,6 +9,19 @@
       section {
         margin-block-end: 1em;
       }
+
+      #status-item {
+        animation: 3s ease-in 1s infinite alternate both running slidein;
+      }
+
+      @keyframes slidein {
+        0% {
+          margin-inline-start: 0%;
+        }
+        100% {
+          margin-inline-start: 100%;
+        }
+      }
     </style>
   </head>
 
@@ -42,6 +55,10 @@
         </form>
       </section>
 
+      <section>
+        <div id="status"></div>
+      </section>
+
       <!-- log -->
       <section>
         <ul id="log"></ul>
@@ -71,6 +88,15 @@
         const text = document.createTextNode("#" + index++ + ": " + message);
         li.appendChild(text);
         elementLog.appendChild(li);
+      }
+
+      // set up status
+      const elementStatus = document.querySelector("#status");
+      function setup(status) {
+        const content = !status
+          ? ""
+          : `<span id='status-item'>${status}</span>`;
+        elementStatus.innerHTML = content;
       }
 
       // initialize
@@ -126,8 +152,20 @@
             }
             log("Starting ...");
             phase = STARTING;
+            setup(phase);
 
             const utterance = new SpeechSynthesisUtterance(content);
+
+            utterance.onerror = function (e) {
+              log(`Error - ${e}`);
+            };
+
+            utterance.onend = function (e) {
+              log(`End - ${e}`);
+              setup("");
+              cancelBtn.click();
+            };
+
             for (const voice of voices) {
               if (generateVoiceContent(voice) === voiceOption) {
                 utterance.voice = voice;
@@ -147,8 +185,9 @@
           pauseBtn.addEventListener("click", (e) => {
             e.preventDefault();
             if (![STARTED, RESUMED].includes(phase)) return;
-            log('Pausing ...')
+            log("Pausing ...");
             phase = PAUSING;
+            setup("");
             speechSynthesis.pause();
             phase = PAUSED;
           });
@@ -163,8 +202,9 @@
           resumeBtn.addEventListener("click", (e) => {
             e.preventDefault();
             if (![PAUSED].includes(phase)) return;
-            log('Resuming ...')
+            log("Resuming ...");
             phase = RESUMING;
+            setup("");
             speechSynthesis.resume();
             phase = RESUMED;
           });
@@ -178,8 +218,9 @@
           cancelBtn.addEventListener("click", (e) => {
             e.preventDefault();
             if (![STARTED, RESUMED, PAUSED].includes(phase)) return;
-            log('Canceling ...')
+            log("Canceling ...");
             phase = CANCELING;
+            setup("");
             speechSynthesis.cancel();
             phase = CANCELED;
           });
